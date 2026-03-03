@@ -10,21 +10,20 @@ import Foundation
 import AVFoundation
 internal import Combine
 
-internal final class musicPlayer: ObservableObject
+internal final class musicPlayer: NSObject, ObservableObject
 {
     //プレイヤー
-    @Published var player: AVAudioPlayer?
+    @Published var player: AVAudioPlayer? = nil
     //ファイルパス
-    @Published var url: String
-    @Published var listOfName: String
+    @Published var url: String = ""
+    @Published var listOfName: String = ""
     //タイマー
-    @Published var timer: Timer?
-    @Published var elapsedSeconds: Double
-    @Published var durationTime: Double
+    @Published var timer: Timer? = nil
+    @Published var elapsedSeconds: Double = 0.0
+    @Published var durationTime: Double = 0.0
     //ファイルのリスト
-    @Published var listMucsic = Set<UUID>()
-    @Published var fileList: [String]
-    @Published var index: Int
+    @Published var fileList: [String] = []
+    @Published var index: Int = 0
     
     //ランダム要素オン／オフ
     @Published var isRandom: Bool = false
@@ -34,23 +33,24 @@ internal final class musicPlayer: ObservableObject
     
     @Published var isEditing: Bool = false
     
-    init(player: AVAudioPlayer? = nil, url: String = "", listOfName: String = "", timer: Timer? = nil, elapsedSeconds: Double, durationTime: Double, fileList: [String], index: Int) {
+    override init ()
+    {
+        let player = AVAudioPlayer()
         self.player = player
-        self.url = url
-        self.listOfName = listOfName
+        
+        let timer = Timer()
         self.timer = timer
-        self.elapsedSeconds = elapsedSeconds
-        self.durationTime = durationTime
-        self.fileList = fileList
-        self.index = index
+        
+        super.init()
     }
+
     //再生処理
     func play()
     {
         //プレイリストが存在しない場合はエラー
         if fileList.isEmpty == true
         {
-            print ("ファイルがありません")
+            print ("ファイルがありません。")
             return
         }
         

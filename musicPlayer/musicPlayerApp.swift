@@ -11,7 +11,10 @@ import SwiftUI
 struct musicPlayerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Player().onDisappear()
+            {
+                Player.terminateApp()
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ internal final class musicPlayer: NSObject, ObservableObject
         }
         
         //プレイリストが存在していれば再生
-        else
+        else if fileList.isEmpty == false
         {
             
             if(isRandom == true)
@@ -75,9 +75,7 @@ internal final class musicPlayer: NSObject, ObservableObject
                 Loop()
                 if(player?.isPlaying == false)
                 {
-                    player?.prepareToPlay()
                     player?.play()
-                    player?.currentTime = 0
                     //ファイルの最終端を取得
                     durationTime = player!.duration
                 }

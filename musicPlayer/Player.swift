@@ -16,7 +16,7 @@ struct listMusic : Identifiable
 struct Player: View
 {
     @Environment(\.dismiss) var dismiss
-    @ObservedObject var music = musicPlayer()
+    @ObservedObject var music: musicPlayer = musicPlayer()
     @State var listMucsic = Set<UUID>()
     
     @ViewBuilder func seekSlider() -> some View

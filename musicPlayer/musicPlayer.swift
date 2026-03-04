@@ -10,6 +10,11 @@ import Foundation
 import AVFoundation
 internal import Combine
 
+struct ListMusic : Identifiable, Hashable
+{
+    var id: [String] = []
+}
+
 internal final class musicPlayer: NSObject, ObservableObject
 {
     //プレイヤー

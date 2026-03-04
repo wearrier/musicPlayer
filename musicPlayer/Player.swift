@@ -8,16 +8,12 @@
 import SwiftUI
 import AVFoundation
 
-struct ListMusic : Identifiable, Hashable
-{
-    let name: String
-    let id: UUID = UUID()
-}
 struct Player: View
 {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var music: musicPlayer = musicPlayer()
-    @State var listMucsic: ListMusic.ID?
+    var listingMusic = [ListMusic(id: [])]
+    @State var selectedMusic: ListMusic?
     
     @ViewBuilder func seekSlider() -> some View
     {
@@ -53,7 +49,7 @@ struct Player: View
         //プレイリスト
         NavigationStack
         {
-            List(music.fileList, id:\.self, selection: $listMucsic)
+            List(listingMusic, id:\.id, selection: $music.fileList)
             {
                 list in
                 if(music.fileList.count == 0)
@@ -61,8 +57,10 @@ struct Player: View
                     Text("リストが空です")
                 }
                 
-                let n = music.fileList.firstIndex(of: list)!
-                Text("Index : \(n) [\(music.fileList[n])]")
+                if let n = listingMusic.firstIndex(of: list)
+                {
+                    Text("Index : \(n) [\(music.fileList[n])]")
+                }
             }.listStyle(SidebarListStyle())
         }.navigationTitle("オーディオプレイヤー")
     }

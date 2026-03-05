@@ -109,13 +109,13 @@ internal final class musicPlayer: NSObject, ObservableObject
     }
     
     //プレイリスト生成
-    func playlistAdd()
+    func playlistAdd(contentsOf: String)
     {
         let fileManager = FileManager.default
         
         do
         {
-            self.fileList = try fileManager.contentsOfDirectory(atPath: url)
+            self.fileList = try fileManager.contentsOfDirectory(atPath: contentsOf)
             print("\(self.fileList)")
         }
         catch
@@ -160,6 +160,7 @@ internal final class musicPlayer: NSObject, ObservableObject
 
 extension musicPlayer: AVAudioPlayerDelegate
 {
+    //終端まで来たら次の曲再生
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool)
     {
         nextPlay()

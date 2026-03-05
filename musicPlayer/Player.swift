@@ -14,7 +14,8 @@ struct Player: View
     @State var listingMusic = [ListMusic()]
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
-   
+    @State var isImporting: Bool = false
+    
     @ViewBuilder func seekSlider() -> some View
     {
         Slider(value: $music.elapsedSeconds ,in:0...music.durationTime, onEditingChanged:
@@ -75,14 +76,7 @@ struct Player: View
             }
         }.listStyle(SidebarListStyle())
     }
-    
-    @ViewBuilder func folderSelector() -> some View
-    {
-        //フォルダ選択
-        TextField("曲の場所を指定", text: $music.url)
-        Text("\(music.url)")
-    }
-    
+        
     //配置
     var body: some View
     {
@@ -91,8 +85,7 @@ struct Player: View
             seekSlider()
             playTimer()
             playList()
-            folderSelector()
-            
+
             //操作各種
             HStack()
             {
@@ -138,11 +131,33 @@ struct Player: View
                 //ファイル一覧登録
                 Button
                 {
-                    music.playlistAdd()
+                    isImporting = true
                 }
             label:
                 {
                     Text("プレイリストに追加")
+                }
+                .fileImporter(isPresented: $isImporting, allowedContentTypes: [.folder], allowsMultipleSelection: false)
+                {
+                    result in
+                    switch result
+                    {
+                    case .success(let url):
+                        guard let selectedURL = url.first
+                        else
+                        {
+                            return
+                        }
+                        
+                        self.music.url = selectedURL.path
+                        
+                        print(music.url)
+                        
+                        music.playlistAdd(contentsOf: self.music.url)
+                        
+                    case .failure(let error):
+                        print("エラー：\(error)")
+                    }
                 }
                 Toggle(isOn: $music.isLoop)
                 {

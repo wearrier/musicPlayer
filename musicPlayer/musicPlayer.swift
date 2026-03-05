@@ -35,9 +35,7 @@ internal final class musicPlayer: NSObject, ObservableObject
     
     //ループ設定
     @Published var isLoop: Bool = false
-    
-    @Published var isEditing: Bool = false
-    
+        
     override init ()
     {
         let player = AVAudioPlayer()
@@ -71,12 +69,9 @@ internal final class musicPlayer: NSObject, ObservableObject
             {
                 print("数字がありません")
             }
+            Index = Int(index)
+            listOfName = url + "/" + fileList[Index]
             
-            else if !index.words.isEmpty
-            {
-                Index = Int(index)
-                listOfName = url + "/" + fileList[Index]
-            }
             //再生処理
             let playerURL = URL(fileURLWithPath: listOfName)
             do

@@ -68,8 +68,9 @@ struct Player: View
                     music.play(index: n)
                     music.Index = n
                 }
-            }                        }.listStyle(SidebarListStyle())
-     }
+            }
+        }.listStyle(SidebarListStyle())
+    }
     
     @ViewBuilder func folderSelector() -> some View
     {

@@ -41,9 +41,6 @@ struct Player: View
         //再生位置
         //再生時間 / 終端時間
         Text("\(currentTime) / \(duration)")
-        
-        Text("再生場所 : \(music.listOfName)")
-        
     }
     
     @ViewBuilder func playList() -> some View

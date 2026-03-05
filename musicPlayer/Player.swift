@@ -10,11 +10,11 @@ import AVFoundation
 
 struct Player: View
 {
-    @Environment(\.dismiss) var dismiss
     @ObservedObject var music: musicPlayer = musicPlayer()
-    let listingMusic = [ListMusic()]
+    @State var listingMusic = [ListMusic()]
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
+   
     @ViewBuilder func seekSlider() -> some View
     {
         Slider(value: $music.elapsedSeconds ,in:0...music.durationTime, onEditingChanged:
@@ -47,7 +47,7 @@ struct Player: View
     
     @ViewBuilder func playList() -> some View
     {
-        //プレイリスト
+        //プレイリスト（選択可）
         List(listingMusic, id:\.id, selection: $selectedMusic)
         {
             list in
@@ -65,9 +65,13 @@ struct Player: View
                     .onTapGesture(count: 2)
                 {
                     print (music.fileList[n])
+                    if(music.isRandom == true)
+                    {
+                        music.fileList.shuffle()
+                        music.isRandom = false
+                    }
                     music.play(index: n)
-                    music.Index = n
-                }
+                 }
             }
         }.listStyle(SidebarListStyle())
     }

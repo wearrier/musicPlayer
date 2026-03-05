@@ -62,7 +62,7 @@ internal final class musicPlayer: NSObject, ObservableObject
         {
             if(isRandom == true)
             {
-                Index = Int.random(in: 0..<fileList.count)
+                self.Index = Int.random(in: 0..<index)
             }
             
             if index.words.isEmpty
@@ -76,15 +76,16 @@ internal final class musicPlayer: NSObject, ObservableObject
             let playerURL = URL(fileURLWithPath: listOfName)
             do
             {
-                player?.stop()
                 print(listOfName)
                 player = try AVAudioPlayer(contentsOf: playerURL)
                 Loop()
                 if(player?.isPlaying == false)
                 {
+                    player?.delegate = self
                     player?.play()
                     //ファイルの最終端を取得
                     durationTime = player!.duration
+                    
                 }
             }
             catch
@@ -154,5 +155,14 @@ internal final class musicPlayer: NSObject, ObservableObject
         {
             Index -= 1
         }
+    }
+}
+
+extension musicPlayer: AVAudioPlayerDelegate
+{
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool)
+    {
+        nextPlay()
+        play(index: Index)
     }
 }

@@ -12,13 +12,13 @@ struct Player: View
 {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var music: musicPlayer = musicPlayer()
-    var listingMusic = [ListMusic(id: [])]
+    @State var listingMusic = [ListMusic()]
     @State var selectedMusic: ListMusic?
     
     @ViewBuilder func seekSlider() -> some View
     {
         Slider(value: $music.elapsedSeconds ,in:0...music.durationTime, onEditingChanged:
-        {
+                {
             EditActions in
             if EditActions == false
             {
@@ -42,28 +42,29 @@ struct Player: View
         Text("\(currentTime) / \(duration)")
         
         Text("再生場所 : \(music.listOfName)")
-
+        
     }
     @ViewBuilder func playList() -> some View
     {
         //プレイリスト
-        NavigationStack
+        List(listingMusic, id:\.id, selection: $music.fileList)
         {
-            List(listingMusic, id:\.id, selection: $music.fileList)
+            list in
+            
+            if music.fileList.isEmpty
             {
-                list in
-                if(music.fileList.count == 0)
-                {
-                    Text("リストが空です")
-                }
+                Text("プレイリストが空です")
+            }
+            
+            ForEach(0..<music.fileList.count, id: \.self)
+            {
+                n in
+                Text("Index : \(n) [\(music.fileList[n])]")
                 
-                if let n = listingMusic.firstIndex(of: list)
-                {
-                    Text("Index : \(n) [\(music.fileList[n])]")
-                }
-            }.listStyle(SidebarListStyle())
-        }.navigationTitle("オーディオプレイヤー")
+             }
+        }.listStyle(SidebarListStyle())
     }
+    
     @ViewBuilder func folderSelector() -> some View
     {
         //フォルダ選択

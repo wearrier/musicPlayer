@@ -12,9 +12,9 @@ struct Player: View
 {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var music: musicPlayer = musicPlayer()
-    @State var listingMusic = [ListMusic()]
+    let listingMusic = [ListMusic()]
     @State var selectedMusic: ListMusic?
-    
+    @State var selectedMusicIndex: String?
     @ViewBuilder func seekSlider() -> some View
     {
         Slider(value: $music.elapsedSeconds ,in:0...music.durationTime, onEditingChanged:
@@ -44,13 +44,13 @@ struct Player: View
         Text("再生場所 : \(music.listOfName)")
         
     }
+    
     @ViewBuilder func playList() -> some View
     {
         //プレイリスト
-        List(listingMusic, id:\.id, selection: $music.fileList)
+        List(listingMusic, id:\.id, selection: $selectedMusic)
         {
             list in
-            
             if music.fileList.isEmpty
             {
                 Text("プレイリストが空です")
@@ -60,10 +60,16 @@ struct Player: View
             {
                 n in
                 Text("Index : \(n) [\(music.fileList[n])]")
-                
-             }
-        }.listStyle(SidebarListStyle())
-    }
+                    .listRowBackground(selectedMusic == list ? Color.blue : Color.clear)
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2)
+                {
+                    print (music.fileList[n])
+                    music.play(index: n)
+                    music.Index = n
+                }
+            }                        }.listStyle(SidebarListStyle())
+     }
     
     @ViewBuilder func folderSelector() -> some View
     {
@@ -89,7 +95,7 @@ struct Player: View
                 {
                     music.backPlay()
                     music.stop()
-                    music.play()
+                    music.play(index: music.Index)
                 }
             label:
                 {
@@ -99,7 +105,7 @@ struct Player: View
                 //再生ボタン
                 Button
                 {
-                    music.play()
+                    music.play(index: music.Index)
                 }
             label:
                 {
@@ -118,7 +124,7 @@ struct Player: View
                 {
                     music.nextPlay()
                     music.stop()
-                    music.play()
+                    music.play(index: music.Index)
                 }
             label:
                 {

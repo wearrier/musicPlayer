@@ -28,7 +28,7 @@ internal final class musicPlayer: NSObject, ObservableObject
     @Published var durationTime: Double = 0.0
     //ファイルのリスト
     @Published var fileList: [String] = []
-    @Published var index: Int = 0
+    @Published var Index: Int = 0
     
     //ランダム要素オン／オフ
     @Published var isRandom: Bool = false
@@ -50,7 +50,7 @@ internal final class musicPlayer: NSObject, ObservableObject
     }
 
     //再生処理
-    func play()
+    func play(index: Int)
     {
         //プレイリストが存在しない場合はエラー
         if fileList.isEmpty == true
@@ -62,14 +62,21 @@ internal final class musicPlayer: NSObject, ObservableObject
         //プレイリストが存在していれば再生
         else if fileList.isEmpty == false
         {
-            
             if(isRandom == true)
             {
-                index = Int.random(in: 0..<fileList.count)
+                Index = Int.random(in: 0..<fileList.count)
             }
             
-            listOfName = url + "/" + fileList[index]
+            if index.words.isEmpty
+            {
+                print("数字がありません")
+            }
             
+            else if !index.words.isEmpty
+            {
+                Index = Int(index)
+                listOfName = url + "/" + fileList[Index]
+            }
             //再生処理
             let playerURL = URL(fileURLWithPath: listOfName)
             do
@@ -130,27 +137,27 @@ internal final class musicPlayer: NSObject, ObservableObject
     //次
     func nextPlay()
     {
-        if(index == fileList.endIndex - 1)
+        if(Index == fileList.endIndex - 1)
         {
-            index = fileList.startIndex - 1
+            Index = fileList.startIndex - 1
         }
         
-        if(index >= fileList.startIndex - 1)
+        if(Index >= fileList.startIndex - 1)
         {
-            index += 1
+            Index += 1
         }
     }
     //戻る
     func backPlay()
     {
-        if(index == fileList.startIndex)
+        if(Index == fileList.startIndex)
         {
-            index = fileList.endIndex
+            Index = fileList.endIndex
         }
         
-        if(index <= fileList.endIndex)
+        if(Index <= fileList.endIndex)
         {
-            index -= 1
+            Index -= 1
         }
     }
 }

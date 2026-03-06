@@ -60,11 +60,6 @@ internal final class musicPlayer: NSObject, ObservableObject
         //プレイリストが存在していれば再生
         else if fileList.isEmpty == false
         {
-            if(isRandom == true)
-            {
-                self.Index = Int.random(in: 0..<Index)
-            }
-            
             // Indexが -1 以下になっていた場合 0 に戻す
             if Index <= -1
             {
@@ -81,7 +76,6 @@ internal final class musicPlayer: NSObject, ObservableObject
             {
                 print(listOfName)
                 player = try AVAudioPlayer(contentsOf: playerURL)
-                Loop()
                 if(player?.isPlaying == false)
                 {
                     player?.delegate = self
@@ -136,7 +130,14 @@ internal final class musicPlayer: NSObject, ObservableObject
     //ループ
     func Loop()
     {
-        player?.numberOfLoops = isLoop ? -1 : 0
+        if isLoop == true
+        {
+            player?.numberOfLoops = -1
+        }
+        if isLoop == false
+        {
+            player?.numberOfLoops = 0
+        }
     }
     //次
     func nextPlay()
@@ -168,10 +169,37 @@ internal final class musicPlayer: NSObject, ObservableObject
 
 extension musicPlayer: AVAudioPlayerDelegate
 {
-    //終端まで来たら次の曲再生
+    //終端まで来たら、条件による再生
     func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool)
     {
-        nextPlay()
+        //ループ再生
+        if isLoop == true
+        {
+            Loop()
+        }
+        //順次再生
+        if isLoop == false
+        {
+            Loop()
+            nextPlay()
+        }
+        //ランダム再生
+        if(isRandom == true)
+        {
+            self.Index = Int.random(in: 0..<self.fileList.count)
+        }
         play(index: Index)
+    }
+    
+    //再生開始した際にインデックスがずれていないかチェック
+    func audioPlayerItemDidPlayToEndTime(_ player: AVPlayerItem)
+    {
+        if player.status == .readyToPlay
+        {
+            if Index == Index
+            {
+                play(index: Index)
+            }
+        }
     }
 }

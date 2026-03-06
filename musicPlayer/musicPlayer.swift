@@ -100,6 +100,11 @@ internal final class musicPlayer: NSObject, ObservableObject
         timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true)
         {
             _ in
+            //バグ回避のためのコード
+            if self.elapsedSeconds != self.elapsedSeconds
+            {
+                return
+            }
             self.elapsedSeconds = self.player!.currentTime
         }
     }

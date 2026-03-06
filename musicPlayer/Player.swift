@@ -169,7 +169,7 @@ struct Player: View
         }
         .padding(.all, 10)
     }
-    
+        
     static func terminateApp()
     {
         NSApplication.shared.terminate(self)

@@ -66,8 +66,9 @@ internal final class musicPlayer: NSObject, ObservableObject
                 Index = 0
                 return
             }
-            Index = Int(index)
             
+            Index = Int(index)
+
             listOfName = url + "/" + fileList[Index]
             
             //再生処理
@@ -88,6 +89,7 @@ internal final class musicPlayer: NSObject, ObservableObject
             catch
             {
                 print ("Error loading audio file[Error: \(error)]")
+                nextPlay()
             }
         }
         //再生時間取得
@@ -95,11 +97,14 @@ internal final class musicPlayer: NSObject, ObservableObject
         {
             _ in
             //バグ回避のためのコード
-            if self.elapsedSeconds != self.elapsedSeconds
+            if self.player?.currentTime == 0 && self.player?.duration == 0 || self.elapsedSeconds == 0 && self.durationTime == 0
             {
                 return
             }
-            self.elapsedSeconds = self.player!.currentTime
+            else
+            {
+                self.elapsedSeconds = self.player!.currentTime
+            }
         }
     }
     

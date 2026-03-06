@@ -59,20 +59,22 @@ struct Player: View
             {
                 n in
                 Text("Index : \(n) [\(music.fileList[n])]").tag(music.fileList[n])
-                    .listRowBackground(selectedList == n ? Color(.blue) : nil)
                     .onTapGesture(count: 2)
                 {
                     print (music.fileList[n])
-                    if(music.isRandom == true)
-                    {
-                        music.fileList.shuffle()
-                        music.isRandom = false
-                    }
                     music.play(index: n)
-                 }
+                }
+                .listRowBackground(selectedList == n ? Color(.blue) : nil)
+                if music.player?.isPlaying == true
+                {
+                    if music.Index == n
+                    {
+                        Image(systemName: "speaker.wave.3.fill")
+                            .foregroundColor(.blue)
+                    }
+                }
             }
         }
-        .listStyle(SidebarListStyle())
     }
         
     //配置

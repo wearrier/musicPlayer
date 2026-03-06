@@ -62,14 +62,17 @@ internal final class musicPlayer: NSObject, ObservableObject
         {
             if(isRandom == true)
             {
-                self.Index = Int.random(in: 0..<index)
+                self.Index = Int.random(in: 0..<Index)
             }
             
-            if index.words.isEmpty
+            // Indexが -1 以下になっていた場合 0 に戻す
+            if Index <= -1
             {
-                print("数字がありません")
+                Index = 0
+                return
             }
             Index = Int(index)
+            
             listOfName = url + "/" + fileList[Index]
             
             //再生処理

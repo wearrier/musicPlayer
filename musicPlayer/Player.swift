@@ -15,6 +15,7 @@ struct Player: View
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
     @State var isImporting: Bool = false
+    @State var selectedList: Int? = 2
     
     @ViewBuilder func seekSlider() -> some View
     {
@@ -57,9 +58,8 @@ struct Player: View
             ForEach(0..<music.fileList.count, id: \.self)
             {
                 n in
-                Text("Index : \(n) [\(music.fileList[n])]")
-                    .listRowBackground(selectedMusic == list ? Color.blue : Color.clear)
-                    .contentShape(Rectangle())
+                Text("Index : \(n) [\(music.fileList[n])]").tag(music.fileList[n])
+                    .listRowBackground(selectedList == n ? Color(.blue) : nil)
                     .onTapGesture(count: 2)
                 {
                     print (music.fileList[n])
@@ -71,7 +71,8 @@ struct Player: View
                     music.play(index: n)
                  }
             }
-        }.listStyle(SidebarListStyle())
+        }
+        .listStyle(SidebarListStyle())
     }
         
     //配置

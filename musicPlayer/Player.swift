@@ -15,7 +15,7 @@ struct Player: View
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
     @State var isImporting: Bool = false
-    @State var selectedList: Int? = 2
+    @State var selectedList: Int?
     
     @ViewBuilder func seekSlider() -> some View
     {
@@ -59,12 +59,23 @@ struct Player: View
             {
                 n in
                 Text("Index : \(n) [\(music.fileList[n])]").tag(music.fileList[n])
-                    .onTapGesture(count: 2)
+                //タップするとその場所から再生
+                .onTapGesture(count: 2)
                 {
+                    selectedList = n
                     print (music.fileList[n])
                     music.play(index: n)
                 }
+                //再生曲が変わると移動する（.listRowBackgroundも同期する）
+                .onChange(of: music.Index)
+                {
+                    if music.Index == n
+                    {
+                        selectedList = n
+                    }
+                }
                 .listRowBackground(selectedList == n ? Color(.blue) : nil)
+                //再生場所の下にスピーカーマークを表示
                 if music.player?.isPlaying == true
                 {
                     if music.Index == n
@@ -137,13 +148,22 @@ struct Player: View
                 {
                     Text("プレイリストに追加")
                 }
+                //プレイリストを作成するためディレクトリを参照
                 .fileImporter(isPresented: $isImporting, allowedContentTypes: [.folder], allowsMultipleSelection: false)
                 {
                     result in
                     switch result
                     {
                     case .success(let url):
-                        guard let selectedURL = url.first
+                        
+                        let selected = url.filter
+                        {
+                            url in
+                            !url.lastPathComponent.hasPrefix(".DS_Store")
+                        }
+                        
+                        guard let selectedURL = selected.first
+
                         else
                         {
                             return
@@ -175,6 +195,14 @@ struct Player: View
     static func terminateApp()
     {
         NSApplication.shared.terminate(self)
+    }
+}
+
+extension String
+{
+    func StartsWith(_ prefix: String) -> Bool
+    {
+        return self.hasPrefix(prefix)
     }
 }
 

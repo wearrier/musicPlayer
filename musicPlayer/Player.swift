@@ -15,7 +15,7 @@ struct Player: View
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
     @State var isImporting: Bool = false
-    @State var selectedList: Int?
+    @State var selectedList: Int? = 0
     
     @ViewBuilder func seekSlider() -> some View
     {

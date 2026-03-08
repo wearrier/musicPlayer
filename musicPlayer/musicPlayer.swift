@@ -120,9 +120,13 @@ internal final class musicPlayer: NSObject, ObservableObject
     {
         let fileManager = FileManager.default
         
+        //隠しファイルを取得しないようにフィルタリング処理（例：.DS_Store）
         do
         {
             self.fileList = try fileManager.contentsOfDirectory(atPath: contentsOf)
+            
+                .filter { !$0.hasPrefix(".DS_Store") && !$0.StartsWith(".") }
+            
             print("\(self.fileList)")
         }
         catch

@@ -85,7 +85,7 @@ struct Player: View
                     }
                 }
             }
-        }
+        }.listStyle(.sidebar)
     }
         
     //配置
@@ -149,34 +149,18 @@ struct Player: View
                     Text("プレイリストに追加")
                 }
                 //プレイリストを作成するためディレクトリを参照
-                .fileImporter(isPresented: $isImporting, allowedContentTypes: [.folder], allowsMultipleSelection: false)
+                .fileImporter(isPresented: $isImporting, allowedContentTypes: [UTType.folder], allowsMultipleSelection: false)
                 {
                     result in
                     switch result
                     {
-                    case .success(let url):
-                        
-                        let selected = url.filter
-                        {
-                            url in
-                            !url.lastPathComponent.hasPrefix(".DS_Store")
-                        }
-                        
-                        guard let selectedURL = selected.first
+                    case .success(let urls):
+                        self.music.url = urls.first!.path
 
-                        else
-                        {
-                            return
-                        }
-                        
-                        self.music.url = selectedURL.path
-                        
-                        print(music.url)
-                        
-                        music.playlistAdd(contentsOf: self.music.url)
+                        music.playlistAdd(contentsOf: music.url)
                         
                     case .failure(let error):
-                        print("エラー：\(error)")
+                        print("エラー：\(error.localizedDescription)")
                     }
                 }
                 Toggle(isOn: $music.isLoop)

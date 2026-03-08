@@ -124,7 +124,6 @@ internal final class musicPlayer: NSObject, ObservableObject
         do
         {
             self.fileList = try fileManager.contentsOfDirectory(atPath: contentsOf)
-            
                 .filter { !$0.hasPrefix(".DS_Store") && !$0.StartsWith(".") }
             
             print("\(self.fileList)")

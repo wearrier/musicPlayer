@@ -15,15 +15,24 @@ struct ListMusic : Identifiable, Hashable
     var id: [String] = []
 }
 
-internal final class musicPlayer: NSObject, ObservableObject
+class musicPlayer: NSObject, ObservableObject
 {
-    //プレイヤー
-    @Published var player: AVAudioPlayer? = nil
+   //プレイヤー
+    @Published var player: AVAudioPlayer?
+
+    //ヴィジュアライザ
+    @Published var leftPower: Float = -160
+    @Published var rightPower: Float = -160
+    @Published var leftSample: [CGFloat] = Array(repeating: 0, count: 30)
+    @Published var rightSample: [CGFloat]  = Array(repeating: 0, count: 30)
+    @Published var left: CGFloat
+    @Published var right: CGFloat
+
     //ファイルパス
     @Published var url: String = ""
     @Published var listOfName: String = ""
     //タイマー
-    @Published var timer: Timer? = nil
+    @Published var timer: Timer?
     @Published var elapsedSeconds: Double = 0.0
     @Published var durationTime: Double = 0.0
     //ファイルのリスト
@@ -35,8 +44,8 @@ internal final class musicPlayer: NSObject, ObservableObject
     
     //ループ設定
     @Published var isLoop: Bool = false
-        
-    override init ()
+    
+    override init()
     {
         let player = AVAudioPlayer()
         self.player = player
@@ -44,11 +53,14 @@ internal final class musicPlayer: NSObject, ObservableObject
         let timer = Timer()
         self.timer = timer
         
+        left = 0
+        right = 0
+        
         super.init()
     }
-
+    
     //再生処理
-    func play(index: Int)
+    func play(_ index: Int)
     {
         //プレイリストが存在しない場合はエラー
         if fileList.isEmpty == true
@@ -68,7 +80,7 @@ internal final class musicPlayer: NSObject, ObservableObject
             }
             
             Index = Int(index)
-
+            
             listOfName = url + "/" + fileList[Index]
             
             //再生処理
@@ -83,7 +95,14 @@ internal final class musicPlayer: NSObject, ObservableObject
                     player?.play()
                     //ファイルの最終端を取得
                     durationTime = player!.duration
-                    
+                }
+                if player?.isPlaying == true
+                {
+                    self.player?.isMeteringEnabled = true
+                }
+                if player?.isPlaying == false
+                {
+                    self.player?.isMeteringEnabled = false
                 }
             }
             catch
@@ -103,6 +122,7 @@ internal final class musicPlayer: NSObject, ObservableObject
             }
             else
             {
+                self.updateVisualizer()
                 self.elapsedSeconds = self.player!.currentTime
             }
         }
@@ -123,9 +143,19 @@ internal final class musicPlayer: NSObject, ObservableObject
         //隠しファイルを取得しないようにフィルタリング処理（例：.DS_Store）
         do
         {
-            self.fileList = try fileManager.contentsOfDirectory(atPath: contentsOf)
-                .filter { !$0.hasPrefix(".DS_Store") && !$0.StartsWith(".") }
-            
+            var isDir: ObjCBool = false
+            if fileManager.fileExists(atPath: contentsOf, isDirectory: &isDir)
+            {
+                if isDir.boolValue == true
+                {
+                    self.fileList = try fileManager.contentsOfDirectory(atPath: contentsOf)
+                        .filter { !$0.hasPrefix(".DS_Store") && !$0.StartsWith(".") }
+                }
+                else
+                {
+                    print("フォルダではありません")
+                }
+            }
             print("\(self.fileList)")
         }
         catch
@@ -173,6 +203,24 @@ internal final class musicPlayer: NSObject, ObservableObject
             Index -= 1
         }
     }
+    
+    func updateVisualizer()
+    {
+        player?.updateMeters()
+
+        leftPower = player?.peakPower(forChannel: 0) ?? -160
+        rightPower = player?.peakPower(forChannel: 1) ?? -160
+
+        elapsedSeconds = player?.currentTime ?? 0.0
+    }
+
+    func normalized(_ power: Float) -> CGFloat
+    {
+        let mindb: Float = -60
+        let Normalized = (power - mindb) / (0 - mindb)
+        
+        return CGFloat(max(0, min(Normalized, 1)))
+    }
 }
 
 extension musicPlayer: AVAudioPlayerDelegate
@@ -196,7 +244,7 @@ extension musicPlayer: AVAudioPlayerDelegate
         {
             self.Index = Int.random(in: 0..<self.fileList.count)
         }
-        play(index: Index)
+        play(Index)
     }
     
     //再生開始した際にインデックスがずれていないかチェック
@@ -206,7 +254,7 @@ extension musicPlayer: AVAudioPlayerDelegate
         {
             if Index == Index
             {
-                play(index: Index)
+                play(Index)
             }
         }
     }

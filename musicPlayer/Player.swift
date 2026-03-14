@@ -10,15 +10,18 @@ import AVFoundation
 
 struct Player: View
 {
-    @ObservedObject var music: musicPlayer = musicPlayer()
+    @ObservedObject private var music = musicPlayer()
     @State var listingMusic = [ListMusic()]
     @State var selectedMusic: ListMusic?
     @State var selectedMusicIndex: String?
     @State var isImporting: Bool = false
-    @State var selectedList: Int? = 0
-    
+    @State var selectedList: Int?
+    let color1: Color = .blue
+    let color2: Color = .cyan
+
     @ViewBuilder func seekSlider() -> some View
     {
+        
         Slider(value: $music.elapsedSeconds ,in:0...music.durationTime, onEditingChanged:
                 {
             EditActions in
@@ -58,13 +61,13 @@ struct Player: View
             ForEach(0..<music.fileList.count, id: \.self)
             {
                 n in
-                Text("Index : \(n) [\(music.fileList[n])]").tag(music.fileList[n])
+                Text("Index : \(n + 1) [\(music.fileList[n])]").tag(music.fileList[n])
                 //タップするとその場所から再生
                 .onTapGesture(count: 2)
                 {
                     selectedList = n
                     print (music.fileList[n])
-                    music.play(index: n)
+                    music.play(n)
                 }
                 //再生曲が変わると移動する（.listRowBackgroundも同期する）
                 .onChange(of: music.Index)
@@ -91,20 +94,32 @@ struct Player: View
     //配置
     var body: some View
     {
+        VStack(alignment: .leading)
+        {
+            if music.fileList.isEmpty == false
+            {
+                Text("Playlist Index : \(music.Index + 1) / \(music.fileList.endIndex)")
+            }
+        }
         VStack()
         {
-            seekSlider()
-            playTimer()
+            if music.player?.isPlaying == true
+            {
+                seekSlider()
+                playTimer()
+            }
+            
             playList()
-
+            
             //操作各種
             HStack()
             {
+                
                 Button
                 {
                     music.backPlay()
                     music.stop()
-                    music.play(index: music.Index)
+                    music.play(music.Index)
                 }
             label:
                 {
@@ -114,7 +129,8 @@ struct Player: View
                 //再生ボタン
                 Button
                 {
-                    music.play(index: music.Index)
+                    selectedList = music.Index
+                    music.play(music.Index)
                 }
             label:
                 {
@@ -133,13 +149,13 @@ struct Player: View
                 {
                     music.nextPlay()
                     music.stop()
-                    music.play(index: music.Index)
+                    music.play(music.Index)
                 }
             label:
                 {
                     Text("次の曲再生")
                 }
-                //ファイル一覧登録
+               //ファイル一覧登録
                 Button
                 {
                     isImporting = true
@@ -156,7 +172,7 @@ struct Player: View
                     {
                     case .success(let urls):
                         self.music.url = urls.first!.path
-
+                        
                         music.playlistAdd(contentsOf: music.url)
                         
                     case .failure(let error):
@@ -172,8 +188,33 @@ struct Player: View
                     Text("シャッフル")
                 }
             }
+            VStack
+            {
+                HStack()
+                {
+                    if music.player?.isPlaying == true
+                    {
+                        Text("Left")
+                        ZStack
+                        {
+                            VStack
+                            {
+                                VolumeBar(power: music.leftPower, normalizedPower: music.normalized(music.rightPower))
+                            }
+                        }
+                        Text("Right")
+                        ZStack
+                        {
+                            VStack
+                            {
+                                VolumeBar(power: music.rightPower, normalizedPower: music.normalized(music.rightPower))
+                            }
+                        }
+                    }
+                }
+            }
         }
-        .padding(.all, 10)
+        .animation(.easeOut(duration: 0.05), value: music.leftPower)
     }
         
     static func terminateApp()
